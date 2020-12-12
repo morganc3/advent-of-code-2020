@@ -18,17 +18,25 @@ func main() {
 	lines := strings.Split(input_string, "\n")
 	lines = lines[0 : len(lines)-1]
 
-	maxID := 0
+	var seats [][]int = make([][]int, TOTALROWS)
+	for s := range seats {
+		column := make([]int, TOTALCOLUMNS)
+		seats[s] = column
+	}
+
 	for _, line := range lines {
 		row := binarySearch(line[:7], TOTALROWS-1)       // subtract 1 because indexed by 0
 		column := binarySearch(line[7:], TOTALCOLUMNS-1) // subtract 1 because indexed by 0
+		seats[row][column] = -1
+	}
 
-		id := row*8 + column
-		if id > maxID {
-			maxID = id
+	for i, columns := range seats {
+		for j := range columns {
+			if seats[i][j] == 0 && i > 5 && i < 124 { // make sure not at the "very front or back" of plane
+				fmt.Println(i*8 + j)
+			}
 		}
 	}
-	fmt.Println(maxID)
 
 }
 
@@ -49,4 +57,12 @@ func binarySearch(in string, upperBound int) int {
 		return lower
 	}
 	return upper
+}
+
+func makeRange(min, max int) []int {
+	a := make([]int, max-min+1)
+	for i := range a {
+		a[i] = min + i
+	}
+	return a
 }
