@@ -41,10 +41,13 @@ func main() {
 
 	fmt.Println(countAllOccupied(spaces))
 
-	// for _, line := range spaces {
-	// 	fmt.Println(line)
-	// }
+}
 
+func printBoard(spaces [][]string) {
+	for _, line := range spaces {
+		fmt.Println(line)
+	}
+	fmt.Println("")
 }
 
 func countAllOccupied(spaces [][]string) int {
@@ -114,37 +117,53 @@ func getSpace(y, x int, spaces [][]string) string {
 
 // return count of occupied seats that
 // can be seen from the position
-func occupiedAdjacentSeatCount(y, x int, spaces [][]string) int {
-	var pos string
-	pos = getSpace(y, x, spaces)
+func occupiedSeatsSeen(y, x int, spaces [][]string) int {
+	pos := FLOOR
 	count := 0
 	directions := []string{"up", "down", "left", "right", "upRight", "downRight", "upLeft", "downLeft"}
+
 	for _, d := range directions {
-		positionValue := func(direction string) string {
-			switch direction {
-			case "up":
-				pos = getSpace(y-1, x, spaces)
-			case "down":
-				pos = getSpace(y+1, x, spaces)
-			case "left":
-				pos = getSpace(y, x-1, spaces)
-			case "right":
-				pos = getSpace(y, x+1, spaces)
-			case "upRight":
-				pos = getSpace(y-1, x+1, spaces)
-			case "downRight":
-				pos = getSpace(y+1, x+1, spaces)
-			case "upLeft":
-				pos = getSpace(y-1, x-1, spaces)
-			case "downLeft":
-				pos = getSpace(y+1, x-1, spaces)
+		pos = func(_y, _x int, direction string) string {
+			pos = FLOOR
+			for pos == FLOOR { // continue until we get to something that isn't floor
+				switch direction {
+				case "up":
+					_y--
+					pos = getSpace(_y, _x, spaces)
+				case "down":
+					_y++
+					pos = getSpace(_y, _x, spaces)
+				case "left":
+					_x--
+					pos = getSpace(_y, _x, spaces)
+				case "right":
+					_x++
+					pos = getSpace(_y, _x, spaces)
+				case "upRight":
+					_y--
+					_x++
+					pos = getSpace(_y, _x, spaces)
+				case "downRight":
+					_y++
+					_x++
+					pos = getSpace(_y, _x, spaces)
+				case "upLeft":
+					_y--
+					_x--
+					pos = getSpace(_y, _x, spaces)
+				case "downLeft":
+					_x--
+					_y++
+					pos = getSpace(_y, _x, spaces)
+				}
+				if pos == OCCUPIED {
+					count++
+				}
 			}
 			return pos
-		}(d)
-		if positionValue == OCCUPIED {
-			count++
-		}
+		}(y, x, d)
 	}
+
 	return count
 }
 
@@ -152,7 +171,7 @@ func occupiedAdjacentSeatCount(y, x int, spaces [][]string) int {
 // if all spaces around it are empty
 // returns true if empty seat should be flipped
 func processEmpty(y, x int, spaces [][]string) bool {
-	if occupiedAdjacentSeatCount(y, x, spaces) != 0 {
+	if occupiedSeatsSeen(y, x, spaces) != 0 {
 		return false
 	}
 
@@ -161,7 +180,7 @@ func processEmpty(y, x int, spaces [][]string) bool {
 
 // returns true if filled seat should be flipped
 func processOccupied(y, x int, spaces [][]string) bool {
-	if occupiedAdjacentSeatCount(y, x, spaces) >= 4 {
+	if occupiedSeatsSeen(y, x, spaces) >= 5 {
 		return true
 	}
 	return false
